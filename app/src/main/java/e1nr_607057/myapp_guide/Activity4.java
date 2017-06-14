@@ -14,6 +14,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Activity4 extends AppCompatActivity {
 
@@ -29,11 +31,14 @@ public class Activity4 extends AppCompatActivity {
      */
     private FirebaseAuth firebaseAutenticazione;
     private FirebaseUser utente;
+    private FirebaseDatabase dbreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_4);
+        //Firebase.setAndroidContext(this);
+
 
         ins_email = (TextView) findViewById(R.id.email_field);
         ins_pass = (TextView) findViewById(R.id.pass_field);
@@ -43,6 +48,8 @@ public class Activity4 extends AppCompatActivity {
          * avvaloro l'oggetto per comunicare con Il DB Utenti
          */
         firebaseAutenticazione = FirebaseAuth.getInstance();
+        dbreference.getReference();
+        //Firebase.se
 
     }
 
@@ -83,7 +90,18 @@ public class Activity4 extends AppCompatActivity {
                                             "LOGIN EFFETTUATO",
                                             Toast.LENGTH_SHORT
                                     ).show();
-                                    //utente = firebaseAutenticazione.getCurrentUser();
+
+                                    utente = firebaseAutenticazione.getCurrentUser();
+
+                                    dbreference = FirebaseDatabase.getInstance();
+
+                                    DatabaseReference database = dbreference.getReference().child(utente.getEmail());
+
+
+                                    database.child("Telefono").setValue("34567890");
+                                    database.child("via").
+
+
 
                                 }else{
                                     Toast.makeText(
