@@ -9,13 +9,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class Activity4 extends AppCompatActivity {
 
@@ -25,32 +24,34 @@ public class Activity4 extends AppCompatActivity {
     private String email;
     private String pass;
 
+    private TextView verificaLogin;
     /**
-     * Oggetto che si occuperà dell'autenticazione su firebase
-     * e l'oggetto che identificherà l'utente
+     * Oggetti che si occuperanno dell'autenticazione e dell'accesso a firebase
+     * con l'oggetto che identificherà l'utente
      */
-    private FirebaseAuth firebaseAutenticazione;
-    private FirebaseUser utente;
-    private FirebaseDatabase dbreference;
+    private Firebase refDB;                         //Riferimento al DB
+    private FirebaseAuth firebaseAutenticazione;       //Oggetto per l'autenticazione
+    private FirebaseUser utente;                    //oggetto per definire l'utente del DB
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_4);
-        //Firebase.setAndroidContext(this);
+        Firebase.setAndroidContext(this);
 
 
         ins_email = (TextView) findViewById(R.id.email_field);
         ins_pass = (TextView) findViewById(R.id.pass_field);
         login_btn = (Button) findViewById(R.id.login_btn);
+        verificaLogin = (TextView) findViewById(R.id.verificaLogin);
 
         /**
-         * avvaloro l'oggetto per comunicare con Il DB Utenti
+         * avvaloro gli oggetti per comunicare con Il DB Utenti
          */
         firebaseAutenticazione = FirebaseAuth.getInstance();
-        dbreference.getReference();
-        //Firebase.se
-
+        refDB = new Firebase ("https://condomanager-a5aa6.firebaseio.com/");
+        // UTILIZZO COME LINK LA RADICE DEL MIO DB, MA POSSO PERSONALIZZARE QUESTO RIFERIMENTO
+        // A SECONDA DEL CONTESTO CHE DESIDERO
     }
 
 
@@ -69,6 +70,10 @@ public class Activity4 extends AppCompatActivity {
                 //Prendo i dati per l'accesso -> trim è necessario per la formattazione
                 email = ins_email.getText().toString().trim();
                 pass = ins_pass.getText().toString().trim();
+
+                // OGNI VOLTA CHE FACCIO RICHISTA DI LOGIN CANCELLO I DATI DI AUTENTICAZIONE
+                // CHE HO USATO PRECEDENTEMENTE, EFFETTUANDO UN SIGNOUT
+                firebaseAutenticazione.signOut();
 
                 /**
                  * Effettua il Login con il relativo metodo, con il Listener posso effettuare
@@ -90,18 +95,31 @@ public class Activity4 extends AppCompatActivity {
                                             "LOGIN EFFETTUATO",
                                             Toast.LENGTH_SHORT
                                     ).show();
-
+                                    // PRENDO IL RIFERIMENTO DELL'UTENTE LOGGATO
                                     utente = firebaseAutenticazione.getCurrentUser();
 
-                                    dbreference = FirebaseDatabase.getInstance();
 
-                                    DatabaseReference database = dbreference.getReference().child(utente.getEmail());
+                                    // NON POSSO IN ALCUN MODO CREARE UN PERCORSO CHE RESTERà APERTO
+                                    // COME APPUNTO UN NODO NON FOGLIA (quindi senza valore)
+                                    // O SENZA FIGLI
+                                    if(1==2)
+                                        refDB.child("Nome");
 
 
-                                    database.child("Telefono").setValue("34567890");
-                                    database.child("via").
+                                    // SCRIVO SUL DB UN NODO CON l'UID DELL'UTENTE
+                                    // ED AL SUO INTERNO UNA FOGLIA CON CHIAVE-VALORE
+                                    refDB.child(utente.getUid()).child("Nome").setValue("Davide");
+                                    //non possiamo utilizzare la mail come campo chiave dato che contiene
+                                    //caratteri non validi, potremo comunque conservarla come valore
 
 
+                                    // visualizzo i dati dell'utente loggato
+                                    if ( utente != null ){
+                                        verificaLogin.setText("Questi sono i dati dell'utente\n" +
+                                                utente.getDisplayName() +"\n" +
+                                                utente.getEmail() +"\n" +
+                                                utente.getUid() +"\n" );
+                                    }
 
                                 }else{
                                     Toast.makeText(
@@ -117,6 +135,9 @@ public class Activity4 extends AppCompatActivity {
 
             }
         });
+
+
+
 
     }
 }
