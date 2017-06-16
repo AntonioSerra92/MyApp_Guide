@@ -29,14 +29,20 @@ public class Activity4 extends AppCompatActivity {
      * Oggetti che si occuperanno dell'autenticazione e dell'accesso a firebase
      * con l'oggetto che identificherà l'utente
      */
-    private Firebase refDB;                         //Riferimento al DB
+    private Firebase DBref;                         //Riferimento al DB
+
     private FirebaseAuth firebaseAutenticazione;       //Oggetto per l'autenticazione
     private FirebaseUser utente;                    //oggetto per definire l'utente del DB
+
+    private Firebase userRef;       // posso conservare altri riferimenti ad oggetto che punto a piacere
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_4);
+
+        //con questo comando, Firebase funziona solo su questa activity
         Firebase.setAndroidContext(this);
 
 
@@ -49,9 +55,16 @@ public class Activity4 extends AppCompatActivity {
          * avvaloro gli oggetti per comunicare con Il DB Utenti
          */
         firebaseAutenticazione = FirebaseAuth.getInstance();
-        refDB = new Firebase ("https://condomanager-a5aa6.firebaseio.com/");
+
+        // DBref = new Firebase ("https://condomanager-a5aa6.firebaseio.com/");
+
+        DBref = FirebaseDB.getFirebase();
+
         // UTILIZZO COME LINK LA RADICE DEL MIO DB, MA POSSO PERSONALIZZARE QUESTO RIFERIMENTO
         // A SECONDA DEL CONTESTO CHE DESIDERO
+
+
+
     }
 
 
@@ -103,14 +116,23 @@ public class Activity4 extends AppCompatActivity {
                                     // COME APPUNTO UN NODO NON FOGLIA (quindi senza valore)
                                     // O SENZA FIGLI
                                     if(1==2)
-                                        refDB.child("Nome");
+                                        DBref.child("Nome");
 
 
                                     // SCRIVO SUL DB UN NODO CON l'UID DELL'UTENTE
                                     // ED AL SUO INTERNO UNA FOGLIA CON CHIAVE-VALORE
-                                    refDB.child(utente.getUid()).child("Nome").setValue("Davide");
+
+
+                                    userRef = DBref.child(utente.getUid());
+
+                                    userRef.child("Nome").setValue("Davide");
+                                    userRef.child("Cognome").setValue("Gambino");
+                                    userRef.child("Age").setValue("587");
+                                    userRef.child("Professione").setValue("Mignotta");
+
                                     //non possiamo utilizzare la mail come campo chiave dato che contiene
                                     //caratteri non validi, potremo comunque conservarla come valore
+
 
 
                                     // visualizzo i dati dell'utente loggato
@@ -120,6 +142,8 @@ public class Activity4 extends AppCompatActivity {
                                                 utente.getEmail() +"\n" +
                                                 utente.getUid() +"\n" );
                                     }
+
+
 
                                 }else{
                                     Toast.makeText(
